@@ -1,5 +1,7 @@
 This is mini project for calculating BMI
 
+[https://en.wikipedia.org/wiki/Body_mass_index](https://en.wikipedia.org/wiki/Body_mass_index)
+
 Kalkulator Wskaźnika Masy Ciała (BMI)
 
 

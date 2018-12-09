@@ -1,7 +1,11 @@
 package calculator;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static java.lang.Math.pow;
 
@@ -10,7 +14,7 @@ import static java.lang.Math.pow;
  */
 public class CalculatorBmi implements Calculator {
 
-    private int weight; // [dag]
+    private int weight; // [kg]
     private int height; // [cm]
     private double bmi;
 
@@ -51,45 +55,49 @@ public class CalculatorBmi implements Calculator {
     @Override
     public String calculate() {
 
-        bmi = 0;
+        DecimalFormat df = new DecimalFormat("##.00", DecimalFormatSymbols.getInstance(Locale.US));
+        df.setRoundingMode(RoundingMode.HALF_UP);
 
-        if ((this.weight > 0) && (this.height) > 0) {
-            bmi = round(this.weight / pow(this.height/100, 2), 3);
+        if ((weight > 0) && (height) > 0) {
+
+            Double pom = (double) (height * height) / 10000d;
+            if ((pom.isInfinite() || (pom == 0d))) pom = 1d;
+            bmi = (double) weight / pom.doubleValue();
+            return df.format(bmi);
         }
-
-        return Double.toString(bmi);
+        return df.format(bmi);
     }
 
     @Override
     public String interpret() {
 
-        this.setBmi(Double.parseDouble(calculate()));
+        setBmi(Double.parseDouble(calculate()));
 
         List<StructureBmi> lstBmi = new ArrayList<StructureBmi>();
 
-        lstBmi.add(new StructureBmi(0, 15, "Very severely underweight"));
-        lstBmi.add(new StructureBmi(15, 16, "Severely underweight"));
-        lstBmi.add(new StructureBmi(16, 18.5, "Underweight"));
-        lstBmi.add(new StructureBmi(18.5, 25, "Normal (healthy weight)"));
-        lstBmi.add(new StructureBmi(25, 1000, "Overweight"));
+        lstBmi.add(new StructureBmi(0d, 0.01d, "???"));
+        lstBmi.add(new StructureBmi(0.01d, 15d, "Very severely underweight"));
+        lstBmi.add(new StructureBmi(15d, 16d, "Severely underweight"));
+        lstBmi.add(new StructureBmi(16d, 18.5d, "Underweight"));
+        lstBmi.add(new StructureBmi(18.5d, 25d, "Normal (healthy weight)"));
+        lstBmi.add(new StructureBmi(25d, 30d, "Overweight"));
+        lstBmi.add(new StructureBmi(30d, 35d, "Obese Class I (Moderately obese)"));
+        lstBmi.add(new StructureBmi(35d, 40d, "Obese Class II (Severely obese)"));
+        lstBmi.add(new StructureBmi(40d, 45d, "Obese Class III (Very severely obese)"));
+        lstBmi.add(new StructureBmi(45d, 50d, "Obese Class IV (Morbidly Obese)"));
+        lstBmi.add(new StructureBmi(50d, 60d, "Obese Class V (Super Obese)"));
+        lstBmi.add(new StructureBmi(60d, 170d, "Obese Class VI (Hyper Obese)"));
+        lstBmi.add(new StructureBmi(170d, 1000000d, "over human limit!"));
+
 
         for (StructureBmi o : lstBmi) {
-            if ((bmi >= o.getMin()) && (bmi < o.getMax())) {
+            if ((getBmi() >= o.getMin()) && (getBmi() < o.getMax())) {
                 return o.getLabel();
             }
         }
-
         return null;
     }
 
-    public static double round(double value, int places) {
-        if (places < 0) throw new IllegalArgumentException();
-
-        long factor = (long) Math.pow(10, places);
-        value = value * factor;
-        long tmp = Math.round(value);
-        return (double) tmp / factor;
-    }
 }
 
 
